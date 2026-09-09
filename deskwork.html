@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deskwork — AI Productivity Desk</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700&display=swap');
+
+:root{
+  --ink:#17281F;
+  --ink-soft:#3F5348;
+  --ink-faint:#6B7A6E;
+  --paper:#EEF0E4;
+  --paper-alt:#E4E7D5;
+  --paper-deep:#DCE0CB;
+  --line:#BFC5A9;
+  --brass:#B8863B;
+  --brass-dark:#8F6626;
+  --rust:#A6402F;
+  --white:#FBFBF6;
+  --shadow: rgba(23,40,31,0.14);
+  --radius: 3px;
+}
+
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:'Public Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing:antialiased;
+  min-height:100vh;
+}
+
+.app{
+  max-width:1180px;
+  margin:0 auto;
+  padding:36px 28px 60px;
+}
+
+/* ---------- Header ---------- */
+.masthead{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  border-bottom:2px solid var(--ink);
+  padding-bottom:18px;
+  margin-bottom:6px;
+  gap:20px;
+  flex-wrap:wrap;
+}
+.masthead-left{display:flex; align-items:center; gap:16px;}
+.seal{
+  width:46px; height:46px; flex-shrink:0;
+}
+.wordmark{
+  font-family:'Fraunces', serif;
+  font-weight:600;
+  font-size:34px;
+  letter-spacing:-0.01em;
+  line-height:1;
+  margin:0;
+}
+.tagline{
+  font-size:13.5px;
+  color:var(--ink-soft);
+  margin:6px 0 0;
+  max-width:340px;
+  line-height:1.4;
+}
+.masthead-right{
+  font-size:13px;
+  color:var(--ink-faint);
+  text-align:right;
+  line-height:1.6;
+  padding-bottom:4px;
+}
+.masthead-right strong{color:var(--ink-soft); font-weight:600;}
+
+/* ---------- Tabs (folder tabs) ---------- */
+.tabs{
+  display:flex;
+  gap:2px;
+  margin-top:0;
+  overflow-x:auto;
+}
+.tab{
+  font-family:'Fraunces', serif;
+  font-size:16px;
+  font-weight:500;
+  background:var(--paper-alt);
+  border:1px solid var(--line);
+  border-bottom:none;
+  color:var(--ink-soft);
+  padding:12px 22px 11px;
+  cursor:pointer;
+  border-radius:8px 8px 0 0;
+  position:relative;
+  top:1px;
+  white-space:nowrap;
+  transition:background .15s ease, color .15s ease;
+}
+.tab:hover{ background:var(--paper-deep); color:var(--ink); }
+.tab.active{
+  background:var(--white);
+  color:var(--ink);
+  border-color:var(--ink);
+  border-bottom:1px solid var(--white);
+  font-weight:600;
+}
+.tab-underline{
+  border-bottom:1px solid var(--ink);
+}
+
+/* ---------- Workspace ---------- */
+.workspace{
+  background:var(--white);
+  border:1px solid var(--ink);
+  border-top:none;
+  padding:0;
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  min-height:520px;
+}
+@media (max-width:860px){
+  .workspace{ grid-template-columns: 1fr; }
+}
+
+.panel{ padding:30px 32px; }
+.panel-input{
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent,
+    transparent 27px,
+    var(--paper-deep) 28px
+  );
+  border-right:1px solid var(--line);
+}
+@media (max-width:860px){
+  .panel-input{ border-right:none; border-bottom:1px solid var(--line); background-image:none; }
+}
+
+.panel-label{
+  font-family:'Fraunces', serif;
+  font-size:20px;
+  font-weight:600;
+  margin:0 0 4px;
+}
+.panel-sub{
+  font-size:13px;
+  color:var(--ink-faint);
+  margin:0 0 22px;
+  line-height:1.5;
+}
+
+.field{ margin-bottom:18px; }
+.field label{
+  display:block;
+  font-size:12.5px;
+  font-weight:600;
+  color:var(--ink-soft);
+  margin-bottom:6px;
+}
+.field .hint{
+  font-weight:400;
+  color:var(--ink-faint);
+  font-size:11.5px;
+  margin-left:6px;
+}
+.field input[type=text],
+.field textarea,
+.field select{
+  width:100%;
+  font-family:'Public Sans', sans-serif;
+  font-size:14.5px;
+  color:var(--ink);
+  background:var(--white);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:10px 12px;
+  resize:vertical;
+  line-height:1.5;
+}
+.field textarea{ min-height:84px; }
+.field textarea.tall{ min-height:150px; }
+.field input:focus, .field textarea:focus, .field select:focus{
+  outline:2px solid var(--brass);
+  outline-offset:1px;
+  border-color:var(--brass);
+}
+.field select{ cursor:pointer; }
+
+.generate-btn{
+  font-family:'Public Sans', sans-serif;
+  font-size:14.5px;
+  font-weight:600;
+  color:var(--white);
+  background:var(--ink);
+  border:none;
+  border-radius:var(--radius);
+  padding:12px 22px;
+  cursor:pointer;
+  margin-top:6px;
+  transition:background .15s ease;
+}
+.generate-btn:hover:not(:disabled){ background:var(--ink-soft); }
+.generate-btn:disabled{ background:var(--ink-faint); cursor:default; }
+
+.error-msg{
+  color:var(--rust);
+  font-size:13px;
+  margin-top:10px;
+  display:none;
+}
+
+/* ---------- Output panel ---------- */
+.panel-output{
+  display:flex;
+  flex-direction:column;
+}
+.output-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  margin-bottom:4px;
+}
+.output-body{
+  flex:1;
+  font-size:14.5px;
+  line-height:1.65;
+  color:var(--ink);
+}
+.output-body h4{
+  font-family:'Fraunces', serif;
+  font-size:15.5px;
+  font-weight:600;
+  color:var(--ink);
+  margin:18px 0 6px;
+  border-bottom:1px solid var(--line);
+  padding-bottom:4px;
+}
+.output-body h4:first-child{ margin-top:0; }
+.output-body ul{ margin:6px 0 12px; padding-left:20px; }
+.output-body li{ margin-bottom:5px; }
+.output-body p{ margin:0 0 12px; }
+.output-body strong{ color:var(--ink); }
+
+.empty-state{
+  color:var(--ink-faint);
+  font-size:14px;
+  font-style:italic;
+  padding:30px 0;
+  line-height:1.6;
+}
+
+.loading-state{
+  color:var(--ink-soft);
+  font-size:14px;
+  padding:30px 0;
+  display:none;
+  align-items:center;
+  gap:10px;
+}
+.loading-state.show{ display:flex; }
+.spinner{
+  width:14px; height:14px;
+  border:2px solid var(--paper-deep);
+  border-top-color:var(--brass);
+  border-radius:50%;
+  animation:spin .7s linear infinite;
+}
+@keyframes spin{ to{ transform:rotate(360deg); } }
+
+.stamp{
+  display:inline-block;
+  border:2px solid var(--rust);
+  color:var(--rust);
+  font-family:'Fraunces', serif;
+  font-weight:600;
+  font-size:11px;
+  letter-spacing:0.04em;
+  padding:5px 10px;
+  border-radius:4px;
+  transform:rotate(-3deg) scale(0.85);
+  opacity:0;
+  margin-bottom:14px;
+  animation:stampIn .28s ease-out forwards;
+  animation-delay:.05s;
+}
+@keyframes stampIn{
+  0%{ opacity:0; transform:rotate(-3deg) scale(0.6); }
+  70%{ opacity:1; transform:rotate(-3deg) scale(1.05); }
+  100%{ opacity:1; transform:rotate(-3deg) scale(1); }
+}
+
+.output-actions{
+  display:flex;
+  gap:14px;
+  align-items:center;
+  margin-top:16px;
+  padding-top:16px;
+  border-top:1px solid var(--line);
+}
+.copy-btn{
+  font-family:'Public Sans', sans-serif;
+  font-size:12.5px;
+  font-weight:600;
+  color:var(--ink-soft);
+  background:var(--paper-alt);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:7px 13px;
+  cursor:pointer;
+}
+.copy-btn:hover{ background:var(--paper-deep); }
+
+.prompt-toggle{ font-size:12.5px; }
+.prompt-toggle summary{
+  cursor:pointer;
+  color:var(--ink-faint);
+  font-weight:600;
+  list-style:none;
+}
+.prompt-toggle summary::-webkit-details-marker{ display:none; }
+.prompt-toggle summary:before{ content:"▸ "; }
+.prompt-toggle[open] summary:before{ content:"▾ "; }
+.prompt-box{
+  margin-top:10px;
+  background:var(--paper);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:12px 14px;
+  font-size:12px;
+  color:var(--ink-soft);
+  white-space:pre-wrap;
+  line-height:1.55;
+  max-height:220px;
+  overflow-y:auto;
+}
+.prompt-box .role{
+  font-weight:700;
+  color:var(--brass-dark);
+  display:block;
+  margin-top:8px;
+}
+.prompt-box .role:first-child{ margin-top:0; }
+
+/* ---------- Footer ---------- */
+.footer-note{
+  margin-top:22px;
+  padding-top:18px;
+  border-top:1px solid var(--line);
+  font-size:12.5px;
+  color:var(--ink-faint);
+  line-height:1.6;
+  display:flex;
+  gap:10px;
+}
+.footer-note svg{ flex-shrink:0; margin-top:2px; }
+.footer-note b{ color:var(--ink-soft); }
+
+@media (prefers-reduced-motion: reduce){
+  .stamp, .spinner{ animation:none; }
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <div class="masthead">
+    <div class="masthead-left">
+      <svg class="seal" viewBox="0 0 48 48" fill="none">
+        <circle cx="24" cy="24" r="22" stroke="#17281F" stroke-width="2"/>
+        <circle cx="24" cy="24" r="16" stroke="#B8863B" stroke-width="1.4"/>
+        <path d="M17 24 L22 29 L31 19" stroke="#17281F" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+      <div>
+        <p class="wordmark">Deskwork</p>
+        <p class="tagline">An AI-powered assistant for the three tasks that eat the most of a workday.</p>
+      </div>
+    </div>
+    <div class="masthead-right">
+      Capaciti — AI Skill Accelerator<br>
+      <strong>AI-Powered Workplace Productivity Assistant</strong>
+    </div>
+  </div>
+
+  <div class="tabs" id="tabs"></div>
+
+  <div class="workspace">
+    <div class="panel panel-input" id="inputPanel"></div>
+    <div class="panel panel-output" id="outputPanel"></div>
+  </div>
+
+  <div class="footer-note">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" style="margin-top:1px">
+      <circle cx="12" cy="12" r="10" stroke="#6B7A6E" stroke-width="1.6"/>
+      <path d="M12 8v5" stroke="#6B7A6E" stroke-width="1.6" stroke-linecap="round"/>
+      <circle cx="12" cy="16" r="0.9" fill="#6B7A6E"/>
+    </svg>
+    <span><b>Responsible use:</b> every result here is generated automatically from templates and simple rules running in your browser — no data leaves your device and no API key is needed. It can misjudge tone, miss context, or get a detail wrong. Read before you send, schedule, or act — treat it as a fast first draft, not a finished decision.</span>
+  </div>
+
+</div>
+
+<script>
+// ---------------- Small text helpers ----------------
+function splitLines(str){
+  return (str || "").split("\n").map(s => s.trim()).filter(Boolean);
+}
+function splitSentences(str){
+  return (str || "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .split(/(?<=[.!?])\s+(?=[A-Z0-9"'(])/)
+    .map(s => s.trim())
+    .filter(Boolean);
+}
+function cap(str){
+  if(!str) return str;
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+function stripEndPunct(str){
+  return str.replace(/[.,;:\s]+$/,"");
+}
+function pad2(n){ return String(n).padStart(2,"0"); }
+
+// ---------------- Tool definitions ----------------
+const TOOLS = [
+  {
+    id: "email",
+    tabLabel: "Draft an Email",
+    panelTitle: "Smart Email Generator",
+    panelSub: "Give it the gist and it drafts a ready-to-edit email, matched to your recipient and tone.",
+    emptyState: "Fill in what the email needs to say, and a subject + body will appear here.",
+    fields: [
+      { id:"purpose", label:"What's this email about?", type:"textarea", tall:true, required:true,
+        placeholder:"e.g. Telling a client the project deadline is moving by one week, and why" },
+      { id:"recipient", label:"Who are you writing to?", type:"select",
+        options:["Client","Manager","Team / colleague","Other stakeholder"] },
+      { id:"tone", label:"Tone", type:"select",
+        options:["Formal","Informal","Persuasive"] },
+      { id:"points", label:"Key points to include", hint:"(optional, one per line)", type:"textarea", required:false,
+        placeholder:"e.g.\nNew deadline is the 24th\nNo extra cost to them\nHappy to hop on a call" }
+    ],
+    generate(v){
+      const purpose = (v.purpose || "").trim();
+      const recipient = v.recipient || "Client";
+      const tone = v.tone || "Formal";
+      const points = splitLines(v.points);
+
+      // Subject line: first clause of the purpose, trimmed to a reasonable length
+      let firstClause = purpose.split(/[\n.!?]/)[0].trim();
+      let words = firstClause.split(/\s+/);
+      let subject = words.slice(0, 10).join(" ");
+      if(words.length > 10) subject += "...";
+      subject = cap(stripEndPunct(subject)) || "Quick update";
+
+      const greetings = {
+        Formal: { Client:"Dear [Client's name],", Manager:"Dear [Manager's name],",
+          "Team / colleague":"Dear team,", "Other stakeholder":"Dear [Recipient's name]," },
+        Informal: { Client:"Hi [Client's name],", Manager:"Hi [Manager's name],",
+          "Team / colleague":"Hey team,", "Other stakeholder":"Hi [Recipient's name]," },
+        Persuasive: { Client:"Hi [Client's name],", Manager:"Hi [Manager's name],",
+          "Team / colleague":"Hi team,", "Other stakeholder":"Hi [Recipient's name]," }
+      };
+      const openers = {
+        Formal: "I'm writing to let you know about the following:",
+        Informal: "Just wanted to flag something:",
+        Persuasive: "I wanted to reach out about something I think is worth acting on:"
+      };
+      const closers = {
+        Formal: "Please let me know if you have any questions or need anything further from me.",
+        Informal: "Let me know if you've got any questions!",
+        Persuasive: "I'm confident this is the right move — happy to talk it through if useful."
+      };
+      const signoffs = { Formal:"Best regards,", Informal:"Thanks,", Persuasive:"Best," };
+
+      const greeting = (greetings[tone] && greetings[tone][recipient]) || "Hello,";
+      const opener = openers[tone] || openers.Formal;
+      const closer = closers[tone] || closers.Formal;
+      const signoff = signoffs[tone] || signoffs.Formal;
+
+      let body = [];
+      body.push(`Subject: ${subject}`);
+      body.push("");
+      body.push(greeting);
+      body.push("");
+      body.push(`${opener} ${purpose}`);
+      if(points.length){
+        body.push("");
+        body.push("Specifically:");
+        points.forEach(p => body.push(`- ${p}`));
+      }
+      body.push("");
+      body.push(closer);
+      body.push("");
+      body.push(signoff);
+      body.push("[Your name]");
+      return body.join("\n");
+    }
+  },
+  {
+    id: "notes",
+    tabLabel: "Summarize Meeting Notes",
+    panelTitle: "Meeting Notes Summarizer",
+    panelSub: "Paste your raw, messy meeting notes. It pulls out the summary, decisions, and who owns what.",
+    emptyState: "Paste your notes on the left and a structured summary will appear here.",
+    fields: [
+      { id:"notes", label:"Paste your raw meeting notes", type:"textarea", tall:true, required:true,
+        placeholder:"Paste notes as typed during the meeting — bullet points, half-sentences, and all." }
+    ],
+    generate(v){
+      const lines = splitLines(v.notes).map(l => l.replace(/^[-•*]\s*/, ""));
+      const decisions = [];
+      const actions = [];
+      const questions = [];
+      const general = [];
+
+      const decisionRe = /\b(decided|agreed|will go with|going with|chose|chosen|confirmed|settled on)\b/i;
+      const actionOwnerRe = /^([A-Z][a-zA-Z'.]+)\s*[:\-]\s*(.+)$/;
+      const actionVerbRe = /^([A-Z][a-zA-Z'.]+)\s+(will|to|needs to|should|is going to)\s+(.+)$/i;
+      const genericActionRe = /\b(action item|todo|to-?do|follow up|follow-up)\b/i;
+      const dueRe = /\bby\s+([A-Za-z0-9\/\-,. ]+?)(?:[.,]|$)/i;
+
+      lines.forEach(line => {
+        if(!line) return;
+        if(/\?\s*$/.test(line) || /\b(unclear|tbd|unsure|need to check|not sure)\b/i.test(line)){
+          questions.push(stripEndPunct(line));
+          return;
+        }
+        if(decisionRe.test(line)){
+          decisions.push(stripEndPunct(line));
+          return;
+        }
+        let m = line.match(actionOwnerRe);
+        let owner, task;
+        if(m){ owner = m[1]; task = m[2]; }
+        else {
+          m = line.match(actionVerbRe);
+          if(m){ owner = m[1]; task = m[3]; }
+        }
+        if(owner && task){
+          const dueMatch = task.match(dueRe);
+          const due = dueMatch ? dueMatch[1].trim() : null;
+          const cleanTask = stripEndPunct(task.replace(dueRe, ""));
+          actions.push(`${owner}: ${cleanTask} — Due: ${due || "no deadline given"}`);
+          return;
+        }
+        if(genericActionRe.test(line)){
+          const dueMatch = line.match(dueRe);
+          const due = dueMatch ? dueMatch[1].trim() : null;
+          actions.push(`Unassigned: ${stripEndPunct(line.replace(dueRe, ""))} — Due: ${due || "no deadline given"}`);
+          return;
+        }
+        general.push(line);
+      });
+
+      let summary;
+      if(general.length){
+        summary = general.slice(0, 3).map(s => stripEndPunct(s) + ".").join(" ");
+      } else {
+        summary = "The notes were mostly decisions, action items, and open questions — see the sections below for details.";
+      }
+
+      let out = [];
+      out.push("**Summary**");
+      out.push(summary);
+      out.push("**Decisions**");
+      if(decisions.length) decisions.forEach(d => out.push(`- ${d}`));
+      else out.push("- None noted.");
+      out.push("**Action Items**");
+      if(actions.length) actions.forEach(a => out.push(`- ${a}`));
+      else out.push("- None noted.");
+      out.push("**Open Questions**");
+      if(questions.length) questions.forEach(q => out.push(`- ${q}`));
+      else out.push("- None noted.");
+      return out.join("\n");
+    }
+  },
+  {
+    id: "planner",
+    tabLabel: "Plan My Day",
+    panelTitle: "AI Task Planner",
+    panelSub: "Hand over your task list and it builds a prioritized, time-blocked plan with the reasoning behind the order.",
+    emptyState: "Add your tasks on the left and a prioritized schedule will appear here.",
+    fields: [
+      { id:"tasks", label:"List your tasks", hint:"(one per line)", type:"textarea", tall:true, required:true,
+        placeholder:"Reply to Chen re: contract\nFinish Q3 slide deck\nBook flights for the offsite\n1:1 with Priya\nReview James's PR" },
+      { id:"hours", label:"Available working hours today", type:"text", required:false,
+        placeholder:"e.g. 9:00–17:00, with a 1pm meeting" },
+      { id:"notes", label:"Deadlines or priorities to keep in mind", hint:"(optional)", type:"textarea", required:false,
+        placeholder:"e.g. the slide deck is due by end of day, everything else can slip" }
+    ],
+    generate(v){
+      const tasks = splitLines(v.tasks);
+      const hoursRaw = (v.hours || "").trim();
+      const priorityNotes = (v.notes || "").trim();
+
+      function parseHours(str){
+        if(!str) return { start:9*60, end:17*60 };
+        const m = str.match(/(\d{1,2})(?::(\d{2}))?\s*(am|pm)?\s*(?:-|–|to)\s*(\d{1,2})(?::(\d{2}))?\s*(am|pm)?/i);
+        if(!m) return { start:9*60, end:17*60 };
+        function toMin(h, mm, ap){
+          h = parseInt(h, 10); mm = mm ? parseInt(mm, 10) : 0;
+          if(ap){
+            ap = ap.toLowerCase();
+            if(ap === "pm" && h < 12) h += 12;
+            if(ap === "am" && h === 12) h = 0;
+          } else if(h < 8){
+            h += 12; // bare small numbers without am/pm are likely afternoon end times
+          }
+          return h * 60 + mm;
+        }
+        let start = toMin(m[1], m[2], m[3]);
+        let end = toMin(m[4], m[5], m[6]);
+        if(end <= start) end += 12 * 60;
+        return { start, end };
+      }
+      const { start, end } = parseHours(hoursRaw);
+      const totalMinutes = Math.max(end - start, 60);
+
+      const urgentRe = /\b(urgent|asap|today|deadline|due|priority)\b/i;
+      const notesLower = priorityNotes.toLowerCase();
+
+      const scored = tasks.map((task, idx) => {
+        let urgent = urgentRe.test(task);
+        if(!urgent && priorityNotes){
+          const taskWords = task.toLowerCase().split(/\s+/).filter(w => w.length > 3);
+          urgent = taskWords.some(w => notesLower.includes(w));
+        }
+        return { task, idx, urgent };
+      });
+      const ordered = [...scored].sort((a, b) => {
+        if(a.urgent === b.urgent) return a.idx - b.idx;
+        return a.urgent ? -1 : 1;
+      });
+
+      const blockLen = Math.min(90, Math.max(20, Math.round((totalMinutes / ordered.length) / 5) * 5));
+      let cursor = start;
+      const plan = ordered.map(item => {
+        let blockEnd = Math.min(cursor + blockLen, end);
+        const line = `${pad2(Math.floor(cursor/60)%24)}:${pad2(cursor%60)}–${pad2(Math.floor(blockEnd/60)%24)}:${pad2(blockEnd%60)} — ${item.task}`;
+        cursor = blockEnd;
+        return line;
+      });
+
+      const urgentTasks = ordered.filter(o => o.urgent).map(o => o.task);
+      const reasoning = [];
+      if(urgentTasks.length){
+        reasoning.push(`${urgentTasks.join(", ")} ${urgentTasks.length > 1 ? "were" : "was"} scheduled first for being flagged as urgent, deadline-sensitive, or tied to the priorities you listed.`);
+      }
+      reasoning.push(`The remaining tasks were kept in roughly the order you listed them and spaced evenly across the ${Math.round(totalMinutes/60)}-hour window available.`);
+      if(priorityNotes){
+        reasoning.push(`Your note — "${priorityNotes}" — was used to help decide what jumps the queue.`);
+      }
+
+      const tips = [];
+      const commsRe = /\b(reply|email|call|message)\b/i;
+      const commsTasks = tasks.filter(t => commsRe.test(t));
+      if(commsTasks.length > 1){
+        tips.push(`Batch your communication tasks together (${commsTasks.join(", ")}) instead of switching in and out of your inbox between other work.`);
+      }
+      const reviewRe = /\b(review|check|approve)\b/i;
+      const reviewTasks = tasks.filter(t => reviewRe.test(t));
+      if(reviewTasks.length){
+        tips.push(`See if any of the review/approval tasks (${reviewTasks.join(", ")}) can be handed to someone else or done async, rather than blocking a dedicated slot.`);
+      }
+      if(tasks.length > 5){
+        tips.push(`With ${tasks.length} tasks on the list, consider explicitly dropping or deferring the lowest-priority one or two rather than compressing every block.`);
+      }
+      if(tips.length < 2){
+        tips.push("Do the task requiring the most focus first, while your attention is freshest, rather than saving it for the end of the day.");
+      }
+
+      let out = [];
+      out.push("**Today's Plan**");
+      plan.forEach(p => out.push(`- ${p}`));
+      out.push("**Priority Reasoning**");
+      reasoning.forEach(r => out.push(`- ${r}`));
+      out.push("**Time-Saving Tips**");
+      tips.slice(0, 3).forEach(t => out.push(`- ${t}`));
+      return out.join("\n");
+    }
+  },
+  {
+    id: "research",
+    tabLabel: "Research Assistant",
+    panelTitle: "AI Research Assistant",
+    panelSub: "Paste an article, report, or block of text and get the key points distilled — in plain language, with a recommendation.",
+    emptyState: "Paste something to research on the left and a digest will appear here.",
+    fields: [
+      { id:"source", label:"Paste the article, report, or notes to digest", type:"textarea", tall:true, required:true,
+        placeholder:"Paste the text you want summarized and explained." },
+      { id:"audience", label:"Explain it for", type:"select",
+        options:["Myself (quick understanding)","A non-technical colleague","A manager who needs a decision"] },
+      { id:"focus", label:"Anything specific to focus on", hint:"(optional)", type:"text", required:false,
+        placeholder:"e.g. cost implications, what changes for our team" }
+    ],
+    generate(v){
+      const source = (v.source || "").trim();
+      const audience = v.audience || "Myself (quick understanding)";
+      const focus = (v.focus || "").trim();
+      const sentences = splitSentences(source);
+
+      const focusWords = focus.toLowerCase().split(/\s+/).filter(w => w.length > 3);
+      function score(s){
+        let sc = s.length; // longer sentences tend to carry more content
+        if(/\d/.test(s)) sc += 40;
+        if(/%/.test(s)) sc += 20;
+        if(/\b(significant|important|result|because|therefore|increase|decrease|risk|impact|key)\b/i.test(s)) sc += 30;
+        if(focusWords.length){
+          const lower = s.toLowerCase();
+          focusWords.forEach(w => { if(lower.includes(w)) sc += 60; });
+        }
+        return sc;
+      }
+
+      const rankedIdx = sentences
+        .map((s, i) => ({ s, i, sc: score(s) }))
+        .sort((a, b) => b.sc - a.sc);
+      const pickCount = Math.max(1, Math.min(5, sentences.length >= 3 ? Math.min(5, Math.max(3, sentences.length)) : sentences.length));
+      const topInsights = rankedIdx.slice(0, pickCount).map(r => stripEndPunct(r.s) + ".");
+
+      const summarySentences = sentences.slice(0, 3);
+      let summaryPrefix = "";
+      if(audience === "A non-technical colleague") summaryPrefix = "In plain terms: ";
+      else if(audience === "A manager who needs a decision") summaryPrefix = "For decision-making purposes: ";
+      let summary = summarySentences.length
+        ? summaryPrefix + summarySentences.join(" ")
+        : "The source text was too short to summarize meaningfully.";
+
+      let recommendation;
+      const actionRe = /\b(should|must|recommend|need to|plan to|will)\b/i;
+      const actionable = sentences.find(s => actionRe.test(s));
+      if(focus && actionable){
+        recommendation = `Given the focus on ${focus}, pay particular attention to: "${stripEndPunct(actionable)}." Use this alongside the Key Insights above before acting.`;
+      } else if(actionable){
+        recommendation = `The source hints at a next step here: "${stripEndPunct(actionable)}." Treat this as a starting point, not a final decision, until you've read the full text.`;
+      } else {
+        recommendation = "The source doesn't spell out a clear next step — it reads more as background/context than a directive. Use the Key Insights above to decide what, if anything, needs following up.";
+      }
+
+      let out = [];
+      out.push("**Key Insights**");
+      topInsights.forEach(s => out.push(`- ${s}`));
+      out.push("**Plain-Language Summary**");
+      out.push(summary);
+      out.push("**Recommendation**");
+      out.push(recommendation);
+      return out.join("\n");
+    }
+  }
+];
+
+let activeToolId = TOOLS[0].id;
+const toolState = {}; // per-tool: {values,output,loading,error}
+TOOLS.forEach(t => toolState[t.id] = { values:{}, output:null, loading:false, error:null });
+
+// ---------------- Render: tabs ----------------
+function renderTabs(){
+  const tabsEl = document.getElementById("tabs");
+  tabsEl.innerHTML = "";
+  TOOLS.forEach(tool => {
+    const btn = document.createElement("button");
+    btn.className = "tab" + (tool.id === activeToolId ? " active" : "");
+    btn.textContent = tool.tabLabel;
+    btn.onclick = () => { activeToolId = tool.id; renderAll(); };
+    tabsEl.appendChild(btn);
+  });
+}
+
+// ---------------- Render: input panel ----------------
+function renderInputPanel(){
+  const tool = TOOLS.find(t => t.id === activeToolId);
+  const state = toolState[tool.id];
+  const panel = document.getElementById("inputPanel");
+  panel.innerHTML = "";
+
+  const title = document.createElement("p");
+  title.className = "panel-label";
+  title.textContent = tool.panelTitle;
+  panel.appendChild(title);
+
+  const sub = document.createElement("p");
+  sub.className = "panel-sub";
+  sub.textContent = tool.panelSub;
+  panel.appendChild(sub);
+
+  tool.fields.forEach(f => {
+    const wrap = document.createElement("div");
+    wrap.className = "field";
+
+    const label = document.createElement("label");
+    label.textContent = f.label;
+    if(f.hint){
+      const hintSpan = document.createElement("span");
+      hintSpan.className = "hint";
+      hintSpan.textContent = f.hint;
+      label.appendChild(hintSpan);
+    }
+    wrap.appendChild(label);
+
+    let input;
+    if(f.type === "textarea"){
+      input = document.createElement("textarea");
+      if(f.tall) input.className = "tall";
+      if(f.placeholder) input.placeholder = f.placeholder;
+      input.value = state.values[f.id] || "";
+    } else if(f.type === "select"){
+      input = document.createElement("select");
+      f.options.forEach(opt => {
+        const o = document.createElement("option");
+        o.value = opt; o.textContent = opt;
+        input.appendChild(o);
+      });
+      input.value = state.values[f.id] || f.options[0];
+      state.values[f.id] = input.value;
+    } else {
+      input = document.createElement("input");
+      input.type = "text";
+      if(f.placeholder) input.placeholder = f.placeholder;
+      input.value = state.values[f.id] || "";
+    }
+    input.oninput = () => { state.values[f.id] = input.value; };
+    input.onchange = () => { state.values[f.id] = input.value; };
+    wrap.appendChild(input);
+    panel.appendChild(wrap);
+  });
+
+  const btn = document.createElement("button");
+  btn.className = "generate-btn";
+  const btnLabels = { email:"Draft email", notes:"Summarize notes", planner:"Build my plan", research:"Digest this" };
+  btn.textContent = state.loading ? "Working…" : btnLabels[tool.id];
+  btn.disabled = state.loading;
+  btn.onclick = () => runTool(tool);
+  panel.appendChild(btn);
+
+  const errEl = document.createElement("p");
+  errEl.className = "error-msg";
+  if(state.error){
+    errEl.textContent = state.error;
+    errEl.style.display = "block";
+  }
+  panel.appendChild(errEl);
+}
+
+// ---------------- Render: output panel ----------------
+function renderOutputPanel(){
+  const tool = TOOLS.find(t => t.id === activeToolId);
+  const state = toolState[tool.id];
+  const panel = document.getElementById("outputPanel");
+  panel.innerHTML = "";
+
+  const head = document.createElement("div");
+  head.className = "output-head";
+  const label = document.createElement("p");
+  label.className = "panel-label";
+  label.textContent = "Result";
+  head.appendChild(label);
+  panel.appendChild(head);
+
+  if(state.loading){
+    const loading = document.createElement("div");
+    loading.className = "loading-state show";
+    const loadingLabels = { email:"Drafting your email…", notes:"Reading through the notes…", planner:"Building your plan…", research:"Digesting the source…" };
+    loading.innerHTML = `<span class="spinner"></span><span>${loadingLabels[tool.id]}</span>`;
+    panel.appendChild(loading);
+    return;
+  }
+
+  if(!state.output){
+    const empty = document.createElement("p");
+    empty.className = "empty-state";
+    empty.textContent = tool.emptyState;
+    panel.appendChild(empty);
+    return;
+  }
+
+  const stamp = document.createElement("div");
+  stamp.className = "stamp";
+  stamp.textContent = "AUTO-GENERATED · REVIEW BEFORE USE";
+  panel.appendChild(stamp);
+
+  const body = document.createElement("div");
+  body.className = "output-body";
+  body.innerHTML = formatOutput(state.output);
+  panel.appendChild(body);
+
+  const actions = document.createElement("div");
+  actions.className = "output-actions";
+
+  const copyBtn = document.createElement("button");
+  copyBtn.className = "copy-btn";
+  copyBtn.textContent = "Copy result";
+  copyBtn.onclick = () => {
+    navigator.clipboard.writeText(state.output).then(() => {
+      copyBtn.textContent = "Copied";
+      setTimeout(() => copyBtn.textContent = "Copy result", 1400);
+    }).catch(() => {});
+  };
+  actions.appendChild(copyBtn);
+  panel.appendChild(actions);
+}
+
+function renderAll(){
+  renderTabs();
+  renderInputPanel();
+  renderOutputPanel();
+}
+
+// ---------------- Formatting helpers ----------------
+function escapeHtml(str){
+  return str.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+
+function formatOutput(text){
+  const lines = text.split("\n");
+  let html = "";
+  let inList = false;
+  const closeList = () => { if(inList){ html += "</ul>"; inList = false; } };
+
+  lines.forEach(raw => {
+    const line = raw.trim();
+    if(line === ""){ return; }
+
+    const headerMatch = line.match(/^\*\*(.+?)\*\*:?$/);
+    if(headerMatch){
+      closeList();
+      html += `<h4>${escapeHtml(headerMatch[1])}</h4>`;
+      return;
+    }
+
+    const bulletMatch = line.match(/^[-•]\s+(.*)/);
+    if(bulletMatch){
+      if(!inList){ html += "<ul>"; inList = true; }
+      html += `<li>${inlineFormat(bulletMatch[1])}</li>`;
+      return;
+    }
+
+    const subjectMatch = line.match(/^(Subject:.*)/i);
+    if(subjectMatch){
+      closeList();
+      html += `<p><strong>${escapeHtml(subjectMatch[1])}</strong></p>`;
+      return;
+    }
+
+    closeList();
+    html += `<p>${inlineFormat(line)}</p>`;
+  });
+  closeList();
+  return html;
+}
+
+function inlineFormat(str){
+  let escaped = escapeHtml(str);
+  escaped = escaped.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+  return escaped;
+}
+
+// ---------------- Generation (fully local, no API/network call) ----------------
+async function runTool(tool){
+  const state = toolState[tool.id];
+
+  const missing = tool.fields.filter(f => f.required !== false && !( (state.values[f.id]||"").trim() ));
+  if(missing.length){
+    state.error = `Please fill in: ${missing.map(f => f.label).join(", ")}`;
+    renderInputPanel();
+    return;
+  }
+
+  state.loading = true;
+  state.error = null;
+  renderInputPanel();
+  renderOutputPanel();
+
+  try{
+    // Small artificial delay so the loading state reads naturally — everything
+    // below runs entirely in the browser, no network request involved.
+    await new Promise(resolve => setTimeout(resolve, 450 + Math.random() * 350));
+    const text = tool.generate(state.values);
+    if(!text || !text.trim()){
+      throw new Error("No output produced.");
+    }
+    state.output = text.trim();
+  } catch(err){
+    state.error = "Something went wrong generating this — please try again.";
+    state.output = null;
+    console.error(err);
+  } finally {
+    state.loading = false;
+    renderInputPanel();
+    renderOutputPanel();
+  }
+}
+
+renderAll();
+
+</script>
+
+</body>
+</html>
