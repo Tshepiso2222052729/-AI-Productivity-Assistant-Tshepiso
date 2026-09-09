@@ -18,7 +18,7 @@ This saves 60% of time spent on admin work.
 - Vercel: For deploying live portfolio
 - GitHub: For version control
 
-## Sample Prompts (Important for 25% marks)
+## Sample Prompts
 
 PROMPT 1 - Smart Email Generator (Formal to Client):
 "Act as a professional workplace assistant. Generate a formal email to a client named [Client Name] about [Topic: project delay]. Tone: formal, respectful, apologetic. Include subject line, greeting, clear reason, new timeline, and professional closing. Audience: client."
